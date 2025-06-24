@@ -125,7 +125,7 @@ export default function CategoriesScreen() {
           style={styles.addToCartButton}
           onPress={() => handleAddToCart(item)}
         >
-          <ShoppingBag size={12} color="#F97316" />
+          <ShoppingBag size={12} color="#10B981" />
           <Text style={styles.addToCartText}>Add</Text>
         </TouchableOpacity>
       </View>
@@ -180,7 +180,7 @@ export default function CategoriesScreen() {
           style={styles.listAddToCartButton}
           onPress={() => handleAddToCart(item)}
         >
-          <ShoppingBag size={14} color="#F97316" />
+          <ShoppingBag size={14} color="#10B981" />
           <Text style={styles.listAddToCartText}>Add to Cart</Text>
         </TouchableOpacity>
       </View>
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryChipActive: {
-    backgroundColor: '#F97316',
+    backgroundColor: '#10B981',
   },
   categoryChipText: {
     fontSize: 14,
@@ -392,9 +392,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   sortChipActive: {
-    backgroundColor: '#FFF7ED',
+    backgroundColor: '#ECFDF5',
     borderWidth: 1,
-    borderColor: '#F97316',
+    borderColor: '#10B981',
   },
   sortChipText: {
     fontSize: 12,
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   sortChipTextActive: {
-    color: '#F97316',
+    color: '#10B981',
   },
   productsContainer: {
     flex: 1,
@@ -569,13 +569,13 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontFamily: 'Inter-Bold',
-    color: '#F97316',
+    color: '#10B981',
     marginRight: 8,
   },
   listPrice: {
     fontSize: 18,
     fontFamily: 'Inter-Bold',
-    color: '#F97316',
+    color: '#10B981',
     marginRight: 8,
   },
   originalPrice: {
@@ -629,14 +629,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFF7ED',
+    backgroundColor: '#ECFDF5',
     borderWidth: 1,
-    borderColor: '#F97316',
+    borderColor: '#10B981',
     paddingVertical: 6,
     borderRadius: 6,
   },
   addToCartText: {
-    color: '#F97316',
+    color: '#10B981',
     fontSize: 10,
     fontFamily: 'Inter-SemiBold',
     marginLeft: 4,
@@ -645,14 +645,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFF7ED',
+    backgroundColor: '#ECFDF5',
     borderWidth: 1,
-    borderColor: '#F97316',
+    borderColor: '#10B981',
     paddingVertical: 8,
     borderRadius: 8,
   },
   listAddToCartText: {
-    color: '#F97316',
+    color: '#10B981',
     fontSize: 12,
     fontFamily: 'Inter-SemiBold',
     marginLeft: 4,

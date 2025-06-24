@@ -104,7 +104,7 @@ export default function HomeScreen() {
           style={styles.addToCartButton}
           onPress={() => handleAddToCart(item)}
         >
-          <ShoppingBag size={14} color="#F97316" />
+          <ShoppingBag size={14} color="#10B981" />
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </TouchableOpacity>
       </View>
@@ -159,7 +159,7 @@ export default function HomeScreen() {
                 key={index}
                 style={[
                   styles.indicator,
-                  { backgroundColor: index === currentBanner ? '#F97316' : '#D1D5DB' }
+                  { backgroundColor: index === currentBanner ? '#10B981' : '#D1D5DB' }
                 ]}
               />
             ))}
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   seeAll: {
     fontSize: 14,
-    color: '#F97316',
+    color: '#10B981',
     fontFamily: 'Inter-SemiBold',
   },
   categoriesGrid: {
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontFamily: 'Inter-Bold',
-    color: '#F97316',
+    color: '#10B981',
     marginRight: 8,
   },
   originalPrice: {
@@ -479,14 +479,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFF7ED',
+    backgroundColor: '#ECFDF5',
     borderWidth: 1,
-    borderColor: '#F97316',
+    borderColor: '#10B981',
     paddingVertical: 8,
     borderRadius: 8,
   },
   addToCartText: {
-    color: '#F97316',
+    color: '#10B981',
     fontSize: 12,
     fontFamily: 'Inter-SemiBold',
     marginLeft: 4,

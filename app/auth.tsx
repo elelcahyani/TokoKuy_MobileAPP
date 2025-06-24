@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   circle1: {
     width: 200,
     height: 200,
-    backgroundColor: '#F97316',
+    backgroundColor: '#10B981',
     top: -100,
     right: -100,
   },
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   circle3: {
     width: 100,
     height: 100,
-    backgroundColor: '#10B981',
+    backgroundColor: '#F59E0B',
     top: '40%',
     right: -50,
   },
@@ -366,11 +366,11 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 24,
-    backgroundColor: '#F97316',
+    backgroundColor: '#10B981',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-    shadowColor: '#F97316',
+    shadowColor: '#10B981',
     shadowOffset: {
       width: 0,
       height: 8,
@@ -488,15 +488,15 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    color: '#F97316',
+    color: '#10B981',
   },
   submitButton: {
-    backgroundColor: '#F97316',
+    backgroundColor: '#10B981',
     paddingVertical: 18,
     borderRadius: 16,
     alignItems: 'center',
     marginBottom: 24,
-    shadowColor: '#F97316',
+    shadowColor: '#10B981',
     shadowOffset: {
       width: 0,
       height: 8,
@@ -563,6 +563,6 @@ const styles = StyleSheet.create({
   toggleLink: {
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    color: '#F97316',
+    color: '#10B981',
   },
 });

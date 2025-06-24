@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Chrome as Home, Grid3x3 as Grid3X3, ShoppingCart, User } from 'lucide-react-native';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useCart } from '@/contexts/CartContext';
 
 function TabBarIcon({ icon: Icon, color, focused }: { icon: any, color: string, focused: boolean }) {
@@ -30,25 +30,28 @@ function CartTabIcon({ color, focused }: { color: string, focused: boolean }) {
 }
 
 export default function TabLayout() {
+  const isWeb = Platform.OS === 'web';
+  
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#F97316',
         tabBarInactiveTintColor: '#9CA3AF',
-        tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
-        },
-        tabBarLabelStyle: {
-          fontFamily: 'Inter-Medium',
-          fontSize: 12,
-          marginTop: 4,
-        },
+        tabBarStyle: [
+          styles.tabBar,
+          isWeb && styles.webTabBar,
+          Platform.OS === 'ios' && styles.iosTabBar,
+          Platform.OS === 'android' && styles.androidTabBar,
+        ],
+        tabBarLabelStyle: [
+          styles.tabBarLabel,
+          isWeb && styles.webTabBarLabel,
+        ],
+        tabBarItemStyle: [
+          styles.tabBarItem,
+          isWeb && styles.webTabBarItem,
+        ],
       }}>
       <Tabs.Screen
         name="index"
@@ -91,6 +94,52 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    height: 70,
+    paddingBottom: 12,
+    paddingTop: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  webTabBar: {
+    height: 80,
+    paddingBottom: 16,
+    paddingTop: 12,
+    borderTopWidth: 2,
+    borderTopColor: '#F3F4F6',
+  },
+  iosTabBar: {
+    height: 85,
+    paddingBottom: 20,
+  },
+  androidTabBar: {
+    height: 70,
+    paddingBottom: 12,
+  },
+  tabBarLabel: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  webTabBarLabel: {
+    fontSize: 14,
+    marginTop: 6,
+  },
+  tabBarItem: {
+    paddingVertical: 4,
+  },
+  webTabBarItem: {
+    paddingVertical: 8,
+  },
   tabIcon: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -107,6 +156,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   cartBadgeText: {
     color: '#FFFFFF',

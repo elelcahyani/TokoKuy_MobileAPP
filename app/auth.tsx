@@ -6,17 +6,20 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Image,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { ArrowLeft, Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react-native';
+import { Eye, EyeOff, Mail, Lock, User, Phone, ShoppingBag } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AuthScreen() {
-  const router = useRouter();
+  const { signIn, signUp } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -30,16 +33,21 @@ export default function AuthScreen() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isLogin) {
       // Login validation
       if (!formData.email || !formData.password) {
         Alert.alert('Error', 'Please fill in all fields');
         return;
       }
-      Alert.alert('Success', 'Login successful!', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      
+      setIsLoading(true);
+      const success = await signIn(formData.email, formData.password);
+      setIsLoading(false);
+      
+      if (!success) {
+        Alert.alert('Error', 'Invalid email or password');
+      }
     } else {
       // Register validation
       if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
@@ -54,9 +62,14 @@ export default function AuthScreen() {
         Alert.alert('Error', 'Password must be at least 6 characters');
         return;
       }
-      Alert.alert('Success', 'Account created successfully!', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      
+      setIsLoading(true);
+      const success = await signUp(formData.name, formData.email, formData.phone, formData.password);
+      setIsLoading(false);
+      
+      if (!success) {
+        Alert.alert('Error', 'Registration failed. Please try again.');
+      }
     }
   };
 
@@ -73,25 +86,20 @@ export default function AuthScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <ArrowLeft size={24} color="#374151" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {isLogin ? 'Sign In' : 'Create Account'}
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Logo and Welcome */}
+        <View style={styles.logoContainer}>
+          <View style={styles.logoWrapper}>
+            <ShoppingBag size={48} color="#FFFFFF" />
+          </View>
+          <Text style={styles.appName}>TokoKuy</Text>
+          <Text style={styles.tagline}>Your Trusted Online Marketplace</Text>
+        </View>
+
         {/* Welcome Message */}
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeTitle}>
-            {isLogin ? 'Welcome Back!' : 'Join Bukalapak'}
+            {isLogin ? 'Welcome Back!' : 'Join TokoKuy'}
           </Text>
           <Text style={styles.welcomeSubtitle}>
             {isLogin 
@@ -211,10 +219,18 @@ export default function AuthScreen() {
           )}
 
           {/* Submit Button */}
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>
-              {isLogin ? 'Sign In' : 'Create Account'}
-            </Text>
+          <TouchableOpacity 
+            style={[styles.submitButton, isLoading && styles.submitButtonDisabled]} 
+            onPress={handleSubmit}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.submitButtonText}>
+                {isLogin ? 'Sign In' : 'Create Account'}
+              </Text>
+            )}
           </TouchableOpacity>
 
           {/* Divider */}
@@ -253,30 +269,44 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
-    color: '#111827',
-  },
-  headerSpacer: {
-    width: 40,
+    backgroundColor: '#F9FAFB',
   },
   content: {
     flex: 1,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    paddingTop: 40,
+    paddingBottom: 20,
+  },
+  logoWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F97316',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+  appName: {
+    fontSize: 32,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  tagline: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#6B7280',
+    textAlign: 'center',
   },
   welcomeContainer: {
     paddingHorizontal: 24,
@@ -317,7 +347,15 @@ const styles = StyleSheet.create({
     borderColor: '#D1D5DB',
     borderRadius: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   inputIcon: {
     marginRight: 12,
@@ -339,14 +377,27 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    color: '#14B8A6',
+    color: '#F97316',
   },
   submitButton: {
-    backgroundColor: '#14B8A6',
+    backgroundColor: '#F97316',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: 24,
+    shadowColor: '#F97316',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#D1D5DB',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   submitButtonText: {
     color: '#FFFFFF',
@@ -376,6 +427,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: 12,
+    backgroundColor: '#FFFFFF',
   },
   socialButtonText: {
     fontSize: 16,
@@ -396,6 +448,6 @@ const styles = StyleSheet.create({
   toggleLink: {
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    color: '#14B8A6',
+    color: '#F97316',
   },
 });

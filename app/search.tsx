@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Search, X, Clock, TrendingUp, Star, MapPin } from 'lucide-react-native';
+import { ArrowLeft, Search, X, Clock, TrendingUp, Star, MapPin, Heart, ShoppingBag } from 'lucide-react-native';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { useCart } from '@/contexts/CartContext';
+import { products } from '@/data/products';
 
 const recentSearches = [
   'Wireless headphones',
@@ -28,77 +31,40 @@ const trendingSearches = [
   'Wireless charger',
 ];
 
-const searchResults = [
-  {
-    id: '1',
-    name: 'Premium Wireless Headphones',
-    price: 450000,
-    originalPrice: 599000,
-    image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
-    rating: 4.8,
-    sold: '1.2k',
-    location: 'Jakarta',
-    discount: 25,
-  },
-  {
-    id: '2',
-    name: 'Gaming Mechanical Keyboard RGB',
-    price: 750000,
-    originalPrice: 950000,
-    image: 'https://images.pexels.com/photos/1194713/pexels-photo-1194713.jpeg?auto=compress&cs=tinysrgb&w=400',
-    rating: 4.9,
-    sold: '650',
-    location: 'Bandung',
-    discount: 21,
-  },
-  {
-    id: '3',
-    name: 'Wireless Gaming Mouse',
-    price: 320000,
-    originalPrice: 450000,
-    image: 'https://images.pexels.com/photos/2115257/pexels-photo-2115257.jpeg?auto=compress&cs=tinysrgb&w=400',
-    rating: 4.6,
-    sold: '890',
-    location: 'Surabaya',
-    discount: 29,
-  },
-  {
-    id: '4',
-    name: 'USB-C Hub Multiport',
-    price: 189000,
-    originalPrice: 249000,
-    image: 'https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg?auto=compress&cs=tinysrgb&w=400',
-    rating: 4.5,
-    sold: '420',
-    location: 'Jakarta',
-    discount: 24,
-  },
-];
-
 export default function SearchScreen() {
   const router = useRouter();
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const { addToCart } = useCart();
+  
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const filtered = products.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.seller.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setSearchResults(filtered);
+      setIsSearching(true);
+    } else {
+      setSearchResults([]);
+      setIsSearching(false);
+    }
+  }, [searchQuery]);
 
   const formatPrice = (price: number) => {
     return `Rp ${price.toLocaleString('id-ID')}`;
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (query.trim()) {
-      setIsSearching(true);
-      // Simulate search delay
-      setTimeout(() => {
-        setIsSearching(false);
-      }, 500);
-    } else {
-      setIsSearching(false);
-    }
-  };
-
   const handleProductPress = (productId: string) => {
     router.push(`/product/${productId}`);
+  };
+
+  const handleAddToCart = (product: any) => {
+    addToCart(product);
   };
 
   const clearSearch = () => {
@@ -106,10 +72,14 @@ export default function SearchScreen() {
     setIsSearching(false);
   };
 
+  const handleSearchSuggestion = (query: string) => {
+    setSearchQuery(query);
+  };
+
   const renderSearchSuggestion = ({ item, type }: { item: string, type: 'recent' | 'trending' }) => (
     <TouchableOpacity
       style={styles.suggestionItem}
-      onPress={() => handleSearch(item)}
+      onPress={() => handleSearchSuggestion(item)}
     >
       {type === 'recent' ? (
         <Clock size={16} color="#9CA3AF" />
@@ -127,6 +97,16 @@ export default function SearchScreen() {
     >
       <View style={styles.productImageContainer}>
         <Image source={{ uri: item.image }} style={styles.productImage} />
+        <TouchableOpacity 
+          style={styles.favoriteButton}
+          onPress={() => toggleFavorite(item.id)}
+        >
+          <Heart 
+            size={16} 
+            color={isFavorite(item.id) ? "#EF4444" : "#9CA3AF"}
+            fill={isFavorite(item.id) ? "#EF4444" : "none"}
+          />
+        </TouchableOpacity>
         {item.discount && (
           <View style={styles.discountBadge}>
             <Text style={styles.discountText}>{item.discount}%</Text>
@@ -139,7 +119,9 @@ export default function SearchScreen() {
         </Text>
         <View style={styles.priceContainer}>
           <Text style={styles.price}>{formatPrice(item.price)}</Text>
-          <Text style={styles.originalPrice}>{formatPrice(item.originalPrice)}</Text>
+          {item.originalPrice && (
+            <Text style={styles.originalPrice}>{formatPrice(item.originalPrice)}</Text>
+          )}
         </View>
         <View style={styles.productMeta}>
           <View style={styles.ratingContainer}>
@@ -152,6 +134,13 @@ export default function SearchScreen() {
           <MapPin size={12} color="#9CA3AF" />
           <Text style={styles.location}>{item.location}</Text>
         </View>
+        <TouchableOpacity 
+          style={styles.addToCartButton}
+          onPress={() => handleAddToCart(item)}
+        >
+          <ShoppingBag size={12} color="#F97316" />
+          <Text style={styles.addToCartText}>Add</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -175,7 +164,7 @@ export default function SearchScreen() {
             style={styles.searchInput}
             placeholder="Search products..."
             value={searchQuery}
-            onChangeText={handleSearch}
+            onChangeText={setSearchQuery}
             autoFocus
             placeholderTextColor="#9CA3AF"
           />
@@ -347,6 +336,25 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 12,
     resizeMode: 'cover',
   },
+  favoriteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
   discountBadge: {
     position: 'absolute',
     top: 8,
@@ -379,7 +387,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontFamily: 'Inter-Bold',
-    color: '#14B8A6',
+    color: '#F97316',
     marginRight: 8,
   },
   originalPrice: {
@@ -412,11 +420,28 @@ const styles = StyleSheet.create({
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 8,
   },
   location: {
     marginLeft: 4,
     fontSize: 12,
     color: '#9CA3AF',
     fontFamily: 'Inter-Regular',
+  },
+  addToCartButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#F97316',
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  addToCartText: {
+    color: '#F97316',
+    fontSize: 10,
+    fontFamily: 'Inter-SemiBold',
+    marginLeft: 4,
   },
 });

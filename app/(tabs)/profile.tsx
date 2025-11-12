@@ -6,17 +6,21 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Settings, ShoppingBag, Heart, Star, CircleHelp as HelpCircle, Shield, Bell, CreditCard, MapPin, LogOut, ChevronRight, CreditCard as Edit } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
 
 const menuItems = [
   {
     section: 'Account',
     items: [
       { id: 'orders', title: 'My Orders', icon: ShoppingBag, count: '3' },
-      { id: 'wishlist', title: 'Wishlist', icon: Heart, count: '12' },
+      { id: 'wishlist', title: 'Wishlist', icon: Heart },
       { id: 'reviews', title: 'Reviews', icon: Star },
       { id: 'addresses', title: 'Addresses', icon: MapPin },
       { id: 'payment', title: 'Payment Methods', icon: CreditCard },
@@ -40,45 +44,62 @@ const menuItems = [
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const isLoggedIn = true; // This would come from your auth context
-
-  const handleLogin = () => {
-    router.push('/auth');
-  };
+  const { user, signOut } = useAuth();
+  const { getCartCount } = useCart();
+  const { favorites } = useFavorites();
 
   const handleMenuPress = (itemId: string) => {
-    console.log(`Pressed ${itemId}`);
-    // Handle navigation to specific screens
+    switch (itemId) {
+      case 'orders':
+        Alert.alert('My Orders', 'Orders feature coming soon!');
+        break;
+      case 'wishlist':
+        Alert.alert('Wishlist', `You have ${favorites.length} items in your wishlist.`);
+        break;
+      case 'reviews':
+        Alert.alert('Reviews', 'Reviews feature coming soon!');
+        break;
+      case 'addresses':
+        Alert.alert('Addresses', 'Address management coming soon!');
+        break;
+      case 'payment':
+        Alert.alert('Payment Methods', 'Payment methods coming soon!');
+        break;
+      case 'notifications':
+        Alert.alert('Notifications', 'Notification settings coming soon!');
+        break;
+      case 'privacy':
+        Alert.alert('Privacy & Security', 'Privacy settings coming soon!');
+        break;
+      case 'settings':
+        Alert.alert('Settings', 'App settings coming soon!');
+        break;
+      case 'help':
+        Alert.alert('Help Center', 'Help center coming soon!');
+        break;
+      default:
+        break;
+    }
   };
 
   const handleLogout = () => {
-    console.log('Logout pressed');
-    // Handle logout logic
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: signOut
+        }
+      ]
+    );
   };
 
-  if (!isLoggedIn) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-        </View>
-        
-        <View style={styles.loginPromptContainer}>
-          <User size={80} color="#D1D5DB" />
-          <Text style={styles.loginPromptTitle}>Welcome to Bukalapak</Text>
-          <Text style={styles.loginPromptSubtitle}>
-            Sign in to access your account and enjoy personalized shopping experience
-          </Text>
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Sign In</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.registerButton}>
-            <Text style={styles.registerButtonText}>Create Account</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const handleEditProfile = () => {
+    router.push('/edit-profile');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -86,7 +107,7 @@ export default function ProfileScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
             <Edit size={20} color="#374151" />
           </TouchableOpacity>
         </View>
@@ -95,13 +116,13 @@ export default function ProfileScreen() {
         <View style={styles.profileCard}>
           <View style={styles.profileInfo}>
             <Image 
-              source={{ uri: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150' }}
+              source={{ uri: user?.avatar || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150' }}
               style={styles.avatar}
             />
             <View style={styles.profileDetails}>
-              <Text style={styles.userName}>John Doe</Text>
-              <Text style={styles.userEmail}>john.doe@email.com</Text>
-              <Text style={styles.userPhone}>+62 812 3456 7890</Text>
+              <Text style={styles.userName}>{user?.name || 'User Name'}</Text>
+              <Text style={styles.userEmail}>{user?.email || 'user@email.com'}</Text>
+              <Text style={styles.userPhone}>{user?.phone || '+62 812 3456 7890'}</Text>
             </View>
           </View>
           
@@ -144,9 +165,14 @@ export default function ProfileScreen() {
                     <Text style={styles.menuItemText}>{item.title}</Text>
                   </View>
                   <View style={styles.menuItemRight}>
-                    {item.count && (
+                    {item.id === 'orders' && (
                       <View style={styles.countBadge}>
-                        <Text style={styles.countText}>{item.count}</Text>
+                        <Text style={styles.countText}>3</Text>
+                      </View>
+                    )}
+                    {item.id === 'wishlist' && favorites.length > 0 && (
+                      <View style={styles.countBadge}>
+                        <Text style={styles.countText}>{favorites.length}</Text>
                       </View>
                     )}
                     <ChevronRight size={16} color="#9CA3AF" />
@@ -259,7 +285,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#14B8A6',
+    color: '#F97316',
     marginBottom: 4,
   },
   statLabel: {
@@ -325,7 +351,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   countBadge: {
-    backgroundColor: '#14B8A6',
+    backgroundColor: '#F97316',
     borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -352,54 +378,5 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 100,
-  },
-  loginPromptContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-  },
-  loginPromptTitle: {
-    fontSize: 24,
-    fontFamily: 'Inter-Bold',
-    color: '#111827',
-    marginTop: 24,
-    marginBottom: 8,
-  },
-  loginPromptSubtitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-  },
-  loginButton: {
-    backgroundColor: '#14B8A6',
-    paddingHorizontal: 48,
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    width: '100%',
-    alignItems: 'center',
-  },
-  loginButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-  },
-  registerButton: {
-    borderWidth: 2,
-    borderColor: '#14B8A6',
-    paddingHorizontal: 48,
-    paddingVertical: 16,
-    borderRadius: 12,
-    width: '100%',
-    alignItems: 'center',
-  },
-  registerButtonText: {
-    color: '#14B8A6',
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
   },
 });

@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Chrome as Home, Grid3x3 as Grid3X3, ShoppingCart, User } from 'lucide-react-native';
 import { View, Text, StyleSheet } from 'react-native';
+import { useCart } from '@/contexts/CartContext';
 
 function TabBarIcon({ icon: Icon, color, focused }: { icon: any, color: string, focused: boolean }) {
   return (
@@ -10,12 +11,30 @@ function TabBarIcon({ icon: Icon, color, focused }: { icon: any, color: string, 
   );
 }
 
+function CartTabIcon({ color, focused }: { color: string, focused: boolean }) {
+  const { getCartCount } = useCart();
+  const cartCount = getCartCount();
+
+  return (
+    <View style={styles.tabIcon}>
+      <ShoppingCart size={24} color={color} strokeWidth={focused ? 2.5 : 2} />
+      {cartCount > 0 && (
+        <View style={styles.cartBadge}>
+          <Text style={styles.cartBadgeText}>
+            {cartCount > 99 ? '99+' : cartCount.toString()}
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#14B8A6',
+        tabBarActiveTintColor: '#F97316',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
@@ -54,7 +73,7 @@ export default function TabLayout() {
         options={{
           title: 'Cart',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon icon={ShoppingCart} color={color} focused={focused} />
+            <CartTabIcon color={color} focused={focused} />
           ),
         }}
       />
@@ -75,5 +94,23 @@ const styles = StyleSheet.create({
   tabIcon: {
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  cartBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Inter-Bold',
   },
 });

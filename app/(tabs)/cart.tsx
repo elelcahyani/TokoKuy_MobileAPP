@@ -10,17 +10,71 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react-native';
-import { useCart } from '@/contexts/CartContext';
+
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice: number;
+  image: string;
+  quantity: number;
+  seller: string;
+  variant?: string;
+}
+
+const cartItems: CartItem[] = [
+  {
+    id: '1',
+    name: 'Wireless Bluetooth Headphones Premium',
+    price: 299000,
+    originalPrice: 399000,
+    image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
+    quantity: 1,
+    seller: 'Tech Store Jakarta',
+    variant: 'Black, Medium',
+  },
+  {
+    id: '2',
+    name: 'Smartphone Case Premium Leather',
+    price: 89000,
+    originalPrice: 129000,
+    image: 'https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=400',
+    quantity: 2,
+    seller: 'Accessories Pro',
+    variant: 'Brown',
+  },
+  {
+    id: '3',
+    name: 'Laptop Stand Adjustable Aluminum',
+    price: 189000,
+    originalPrice: 249000,
+    image: 'https://images.pexels.com/photos/577210/pexels-photo-577210.jpeg?auto=compress&cs=tinysrgb&w=400',
+    quantity: 1,
+    seller: 'Office Gear',
+  },
+];
 
 export default function CartScreen() {
-  const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
-  const [selectedItems, setSelectedItems] = useState<string[]>(items.map(item => item.id));
+  const [items, setItems] = useState<CartItem[]>(cartItems);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const formatPrice = (price: number) => {
     return `Rp ${price.toLocaleString('id-ID')}`;
   };
 
-  const handleRemoveItem = (id: string) => {
+  const updateQuantity = (id: string, change: number) => {
+    setItems(prevItems =>
+      prevItems.map(item => {
+        if (item.id === id) {
+          const newQuantity = Math.max(1, item.quantity + change);
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      })
+    );
+  };
+
+  const removeItem = (id: string) => {
     Alert.alert(
       'Remove Item',
       'Are you sure you want to remove this item from your cart?',
@@ -30,8 +84,8 @@ export default function CartScreen() {
           text: 'Remove',
           style: 'destructive',
           onPress: () => {
-            removeFromCart(id);
-            setSelectedItems(prev => prev.filter(itemId => itemId !== id));
+            setItems(prevItems => prevItems.filter(item => item.id !== id));
+            setSelectedItems(prevSelected => prevSelected.filter(itemId => itemId !== id));
           }
         }
       ]
@@ -134,7 +188,7 @@ export default function CartScreen() {
             <View style={styles.itemDetails}>
               <View style={styles.itemHeader}>
                 <Text style={styles.sellerName}>{item.seller}</Text>
-                <TouchableOpacity onPress={() => handleRemoveItem(item.id)}>
+                <TouchableOpacity onPress={() => removeItem(item.id)}>
                   <Trash2 size={18} color="#EF4444" />
                 </TouchableOpacity>
               </View>
@@ -156,14 +210,14 @@ export default function CartScreen() {
                 <View style={styles.quantityContainer}>
                   <TouchableOpacity
                     style={styles.quantityButton}
-                    onPress={() => updateQuantity(item.id, item.quantity - 1)}
+                    onPress={() => updateQuantity(item.id, -1)}
                   >
                     <Minus size={16} color="#374151" />
                   </TouchableOpacity>
                   <Text style={styles.quantity}>{item.quantity}</Text>
                   <TouchableOpacity
                     style={styles.quantityButton}
-                    onPress={() => updateQuantity(item.id, item.quantity + 1)}
+                    onPress={() => updateQuantity(item.id, 1)}
                   >
                     <Plus size={16} color="#374151" />
                   </TouchableOpacity>
@@ -243,7 +297,7 @@ const styles = StyleSheet.create({
   selectAllText: {
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    color: '#10B981',
+    color: '#14B8A6',
   },
   content: {
     flex: 1,
@@ -278,8 +332,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#10B981',
-    borderColor: '#10B981',
+    backgroundColor: '#14B8A6',
+    borderColor: '#14B8A6',
   },
   checkmark: {
     color: '#FFFFFF',
@@ -331,7 +385,7 @@ const styles = StyleSheet.create({
   itemPrice: {
     fontSize: 16,
     fontFamily: 'Inter-Bold',
-    color: '#10B981',
+    color: '#14B8A6',
     marginBottom: 2,
   },
   originalPrice: {
@@ -384,7 +438,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   shopButton: {
-    backgroundColor: '#10B981',
+    backgroundColor: '#14B8A6',
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 12,
@@ -427,7 +481,7 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#10B981',
+    color: '#14B8A6',
   },
   savingsRow: {
     alignItems: 'flex-end',
@@ -438,7 +492,7 @@ const styles = StyleSheet.create({
     color: '#059669',
   },
   checkoutButton: {
-    backgroundColor: '#10B981',
+    backgroundColor: '#14B8A6',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

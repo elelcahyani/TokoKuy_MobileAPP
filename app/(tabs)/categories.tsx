@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,61 +9,94 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Search, Filter, Grid2x2 as Grid, List, Star, MapPin, Heart, ShoppingBag } from 'lucide-react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useFavorites } from '@/contexts/FavoritesContext';
-import { useCart } from '@/contexts/CartContext';
-import { categories, products } from '@/data/products';
+import { Search, Filter, Grid2x2 as Grid, List, Star, MapPin } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+
+const categories = [
+  { id: 'all', name: 'All Categories', count: '10k+' },
+  { id: 'electronics', name: 'Electronics', count: '2.5k' },
+  { id: 'fashion', name: 'Fashion', count: '3.8k' },
+  { id: 'home', name: 'Home & Garden', count: '1.2k' },
+  { id: 'beauty', name: 'Beauty', count: '960' },
+  { id: 'sports', name: 'Sports', count: '750' },
+  { id: 'books', name: 'Books', count: '650' },
+  { id: 'toys', name: 'Toys & Kids', count: '520' },
+  { id: 'automotive', name: 'Automotive', count: '480' },
+];
+
+const products = [
+  {
+    id: '1',
+    name: 'Premium Wireless Earbuds',
+    price: 450000,
+    originalPrice: 599000,
+    image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.8,
+    sold: '1.2k',
+    location: 'Jakarta',
+    discount: 25,
+  },
+  {
+    id: '2',
+    name: 'Smart Watch Fitness Tracker',
+    price: 299000,
+    originalPrice: 399000,
+    image: 'https://images.pexels.com/photos/393047/pexels-photo-393047.jpeg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.6,
+    sold: '850',
+    location: 'Bandung',
+    discount: 25,
+  },
+  {
+    id: '3',
+    name: 'Mechanical Gaming Keyboard',
+    price: 750000,
+    originalPrice: 950000,
+    image: 'https://images.pexels.com/photos/1194713/pexels-photo-1194713.jpeg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.9,
+    sold: '650',
+    location: 'Surabaya',
+    discount: 21,
+  },
+  {
+    id: '4',
+    name: 'Bluetooth Speaker Portable',
+    price: 189000,
+    originalPrice: 249000,
+    image: 'https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.7,
+    sold: '2.1k',
+    location: 'Jakarta',
+    discount: 24,
+  },
+  {
+    id: '5',
+    name: 'Smartphone Gimbal Stabilizer',
+    price: 320000,
+    originalPrice: 450000,
+    image: 'https://images.pexels.com/photos/186461/pexels-photo-186461.jpeg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.5,
+    sold: '420',
+    location: 'Yogyakarta',
+    discount: 29,
+  },
+  {
+    id: '6',
+    name: 'Wireless Power Bank 20000mAh',
+    price: 159000,
+    originalPrice: 199000,
+    image: 'https://images.pexels.com/photos/4158/apple-iphone-smartphone-desk.jpg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.4,
+    sold: '1.8k',
+    location: 'Jakarta',
+    discount: 20,
+  },
+];
 
 export default function CategoriesScreen() {
-  const router = useRouter();
-  const params = useLocalSearchParams();
-  const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToCart } = useCart();
-  
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [filteredProducts, setFilteredProducts] = useState(products);
-  const [sortBy, setSortBy] = useState<'default' | 'price-low' | 'price-high' | 'rating' | 'popular'>('default');
-
-  useEffect(() => {
-    if (params.category) {
-      setSelectedCategory(params.category as string);
-    }
-  }, [params.category]);
-
-  useEffect(() => {
-    let filtered = products;
-    
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      filtered = products.filter(product => product.category === selectedCategory);
-    }
-    
-    // Sort products
-    switch (sortBy) {
-      case 'price-low':
-        filtered = [...filtered].sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered = [...filtered].sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        filtered = [...filtered].sort((a, b) => b.rating - a.rating);
-        break;
-      case 'popular':
-        filtered = [...filtered].sort((a, b) => {
-          const aSold = parseInt(a.sold.replace('k', '000').replace('.', ''));
-          const bSold = parseInt(b.sold.replace('k', '000').replace('.', ''));
-          return bSold - aSold;
-        });
-        break;
-      default:
-        break;
-    }
-    
-    setFilteredProducts(filtered);
-  }, [selectedCategory, sortBy]);
+  const router = useRouter();
 
   const formatPrice = (price: number) => {
     return `Rp ${price.toLocaleString('id-ID')}`;
@@ -73,10 +106,6 @@ export default function CategoriesScreen() {
     router.push(`/product/${productId}`);
   };
 
-  const handleAddToCart = (product: any) => {
-    addToCart(product);
-  };
-
   const renderGridProduct = ({ item }: { item: any }) => (
     <TouchableOpacity 
       style={styles.gridProductCard}
@@ -84,16 +113,6 @@ export default function CategoriesScreen() {
     >
       <View style={styles.productImageContainer}>
         <Image source={{ uri: item.image }} style={styles.gridProductImage} />
-        <TouchableOpacity 
-          style={styles.favoriteButton}
-          onPress={() => toggleFavorite(item.id)}
-        >
-          <Heart 
-            size={14} 
-            color={isFavorite(item.id) ? "#EF4444" : "#9CA3AF"}
-            fill={isFavorite(item.id) ? "#EF4444" : "none"}
-          />
-        </TouchableOpacity>
         {item.discount && (
           <View style={styles.discountBadge}>
             <Text style={styles.discountText}>{item.discount}%</Text>
@@ -106,9 +125,7 @@ export default function CategoriesScreen() {
         </Text>
         <View style={styles.priceContainer}>
           <Text style={styles.price}>{formatPrice(item.price)}</Text>
-          {item.originalPrice && (
-            <Text style={styles.originalPrice}>{formatPrice(item.originalPrice)}</Text>
-          )}
+          <Text style={styles.originalPrice}>{formatPrice(item.originalPrice)}</Text>
         </View>
         <View style={styles.productMeta}>
           <View style={styles.ratingContainer}>
@@ -121,13 +138,6 @@ export default function CategoriesScreen() {
           <MapPin size={12} color="#9CA3AF" />
           <Text style={styles.location}>{item.location}</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.addToCartButton}
-          onPress={() => handleAddToCart(item)}
-        >
-          <ShoppingBag size={12} color="#10B981" />
-          <Text style={styles.addToCartText}>Add</Text>
-        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -139,16 +149,6 @@ export default function CategoriesScreen() {
     >
       <View style={styles.listImageContainer}>
         <Image source={{ uri: item.image }} style={styles.listProductImage} />
-        <TouchableOpacity 
-          style={styles.listFavoriteButton}
-          onPress={() => toggleFavorite(item.id)}
-        >
-          <Heart 
-            size={16} 
-            color={isFavorite(item.id) ? "#EF4444" : "#9CA3AF"}
-            fill={isFavorite(item.id) ? "#EF4444" : "none"}
-          />
-        </TouchableOpacity>
         {item.discount && (
           <View style={styles.listDiscountBadge}>
             <Text style={styles.discountText}>{item.discount}%</Text>
@@ -161,9 +161,7 @@ export default function CategoriesScreen() {
         </Text>
         <View style={styles.listPriceContainer}>
           <Text style={styles.listPrice}>{formatPrice(item.price)}</Text>
-          {item.originalPrice && (
-            <Text style={styles.listOriginalPrice}>{formatPrice(item.originalPrice)}</Text>
-          )}
+          <Text style={styles.listOriginalPrice}>{formatPrice(item.originalPrice)}</Text>
         </View>
         <View style={styles.listProductMeta}>
           <View style={styles.ratingContainer}>
@@ -176,13 +174,6 @@ export default function CategoriesScreen() {
           <MapPin size={12} color="#9CA3AF" />
           <Text style={styles.location}>{item.location}</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.listAddToCartButton}
-          onPress={() => handleAddToCart(item)}
-        >
-          <ShoppingBag size={14} color="#10B981" />
-          <Text style={styles.listAddToCartText}>Add to Cart</Text>
-        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -193,10 +184,7 @@ export default function CategoriesScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Categories</Text>
         <View style={styles.headerActions}>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => router.push('/search')}
-          >
+          <TouchableOpacity style={styles.actionButton}>
             <Search size={20} color="#374151" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
@@ -249,49 +237,16 @@ export default function CategoriesScreen() {
           </ScrollView>
         </View>
 
-        {/* Sort Options */}
-        <View style={styles.sortContainer}>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.sortScrollContainer}
-          >
-            {[
-              { key: 'default', label: 'Default' },
-              { key: 'price-low', label: 'Price: Low to High' },
-              { key: 'price-high', label: 'Price: High to Low' },
-              { key: 'rating', label: 'Highest Rating' },
-              { key: 'popular', label: 'Most Popular' },
-            ].map((sort) => (
-              <TouchableOpacity
-                key={sort.key}
-                style={[
-                  styles.sortChip,
-                  sortBy === sort.key && styles.sortChipActive
-                ]}
-                onPress={() => setSortBy(sort.key as any)}
-              >
-                <Text style={[
-                  styles.sortChipText,
-                  sortBy === sort.key && styles.sortChipTextActive
-                ]}>
-                  {sort.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
         {/* Products */}
         <View style={styles.productsContainer}>
           <View style={styles.productsHeader}>
             <Text style={styles.productsCount}>
-              {filteredProducts.length} products found
+              {products.length} products found
             </Text>
           </View>
           
           <FlatList
-            data={filteredProducts}
+            data={products}
             renderItem={viewMode === 'grid' ? renderGridProduct : renderListProduct}
             keyExtractor={(item) => item.id}
             numColumns={viewMode === 'grid' ? 2 : 1}
@@ -356,7 +311,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryChipActive: {
-    backgroundColor: '#10B981',
+    backgroundColor: '#14B8A6',
   },
   categoryChipText: {
     fontSize: 14,
@@ -374,35 +329,6 @@ const styles = StyleSheet.create({
   },
   categoryCountActive: {
     color: '#FFFFFF',
-  },
-  sortContainer: {
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  sortScrollContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  sortChip: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-  },
-  sortChipActive: {
-    backgroundColor: '#ECFDF5',
-    borderWidth: 1,
-    borderColor: '#10B981',
-  },
-  sortChipText: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: '#374151',
-  },
-  sortChipTextActive: {
-    color: '#10B981',
   },
   productsContainer: {
     flex: 1,
@@ -474,44 +400,6 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 12,
     resizeMode: 'cover',
   },
-  favoriteButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    width: 24,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
-  },
-  listFavoriteButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
-  },
   discountBadge: {
     position: 'absolute',
     top: 8,
@@ -569,13 +457,13 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontFamily: 'Inter-Bold',
-    color: '#10B981',
+    color: '#14B8A6',
     marginRight: 8,
   },
   listPrice: {
     fontSize: 18,
     fontFamily: 'Inter-Bold',
-    color: '#10B981',
+    color: '#14B8A6',
     marginRight: 8,
   },
   originalPrice: {
@@ -617,44 +505,11 @@ const styles = StyleSheet.create({
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
   },
   location: {
     marginLeft: 4,
     fontSize: 12,
     color: '#9CA3AF',
     fontFamily: 'Inter-Regular',
-  },
-  addToCartButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ECFDF5',
-    borderWidth: 1,
-    borderColor: '#10B981',
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  addToCartText: {
-    color: '#10B981',
-    fontSize: 10,
-    fontFamily: 'Inter-SemiBold',
-    marginLeft: 4,
-  },
-  listAddToCartButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ECFDF5',
-    borderWidth: 1,
-    borderColor: '#10B981',
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  listAddToCartText: {
-    color: '#10B981',
-    fontSize: 12,
-    fontFamily: 'Inter-SemiBold',
-    marginLeft: 4,
   },
 });

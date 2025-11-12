@@ -6,21 +6,17 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Settings, ShoppingBag, Heart, Star, CircleHelp as HelpCircle, Shield, Bell, CreditCard, MapPin, LogOut, ChevronRight, CreditCard as Edit } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { useCart } from '@/contexts/CartContext';
-import { useFavorites } from '@/contexts/FavoritesContext';
 
 const menuItems = [
   {
     section: 'Account',
     items: [
       { id: 'orders', title: 'My Orders', icon: ShoppingBag, count: '3' },
-      { id: 'wishlist', title: 'Wishlist', icon: Heart },
+      { id: 'wishlist', title: 'Wishlist', icon: Heart, count: '12' },
       { id: 'reviews', title: 'Reviews', icon: Star },
       { id: 'addresses', title: 'Addresses', icon: MapPin },
       { id: 'payment', title: 'Payment Methods', icon: CreditCard },
@@ -44,121 +40,45 @@ const menuItems = [
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, signOut } = useAuth();
-  const { getCartCount } = useCart();
-  const { favorites } = useFavorites();
+  const isLoggedIn = true; // This would come from your auth context
+
+  const handleLogin = () => {
+    router.push('/auth');
+  };
 
   const handleMenuPress = (itemId: string) => {
-    switch (itemId) {
-      case 'orders':
-        Alert.alert(
-          'My Orders', 
-          'You have 3 active orders:\n\n• Wireless Earbuds - Shipped\n• Gaming Keyboard - Processing\n• Bluetooth Speaker - Delivered',
-          [{ text: 'OK' }]
-        );
-        break;
-      case 'wishlist':
-        Alert.alert(
-          'Wishlist', 
-          `You have ${favorites.length} items in your wishlist.\n\nTap the heart icon on any product to add it to your favorites!`,
-          [{ text: 'OK' }]
-        );
-        break;
-      case 'reviews':
-        Alert.alert(
-          'Reviews', 
-          'Your review history:\n\n• 5 reviews written\n• Average rating given: 4.2 stars\n• Helpful votes received: 23',
-          [{ text: 'OK' }]
-        );
-        break;
-      case 'addresses':
-        Alert.alert(
-          'Delivery Addresses', 
-          'Manage your delivery addresses:\n\n• Home - Jakarta Selatan\n• Office - Jakarta Pusat\n\nAdd new address or edit existing ones.',
-          [
-            { text: 'Add New Address', onPress: () => Alert.alert('Add Address', 'Address form would open here') },
-            { text: 'OK' }
-          ]
-        );
-        break;
-      case 'payment':
-        Alert.alert(
-          'Payment Methods', 
-          'Your saved payment methods:\n\n• **** 1234 (Visa)\n• **** 5678 (Mastercard)\n• GoPay Wallet\n• OVO Wallet',
-          [
-            { text: 'Add Payment Method', onPress: () => Alert.alert('Add Payment', 'Payment form would open here') },
-            { text: 'OK' }
-          ]
-        );
-        break;
-      case 'notifications':
-        Alert.alert(
-          'Notification Settings', 
-          'Manage your notifications:\n\n✓ Order updates\n✓ Promotions\n✗ Marketing emails\n✓ Security alerts',
-          [
-            { text: 'Change Settings', onPress: () => Alert.alert('Settings', 'Notification preferences would open here') },
-            { text: 'OK' }
-          ]
-        );
-        break;
-      case 'privacy':
-        Alert.alert(
-          'Privacy & Security', 
-          'Your account security:\n\n✓ Two-factor authentication\n✓ Login alerts\n• Last login: Today, 10:30 AM\n• Account created: Jan 2024',
-          [
-            { text: 'Security Settings', onPress: () => Alert.alert('Security', 'Security settings would open here') },
-            { text: 'OK' }
-          ]
-        );
-        break;
-      case 'settings':
-        Alert.alert(
-          'App Settings', 
-          'Customize your app experience:\n\n• Language: English\n• Currency: IDR\n• Theme: Light\n• Auto-sync: Enabled',
-          [
-            { text: 'Open Settings', onPress: () => Alert.alert('Settings', 'App settings would open here') },
-            { text: 'OK' }
-          ]
-        );
-        break;
-      case 'help':
-        Alert.alert(
-          'Help Center', 
-          'Get help with:\n\n• How to place an order\n• Payment issues\n• Delivery tracking\n• Returns & refunds\n• Account settings',
-          [
-            { text: 'Contact Support', onPress: () => Alert.alert('Support', 'Support chat would open here') },
-            { text: 'Browse FAQ', onPress: () => Alert.alert('FAQ', 'FAQ section would open here') },
-            { text: 'OK' }
-          ]
-        );
-        break;
-      default:
-        break;
-    }
+    console.log(`Pressed ${itemId}`);
+    // Handle navigation to specific screens
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out of your account?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert('Signed Out', 'You have been successfully signed out.', [
-              { text: 'OK', onPress: signOut }
-            ]);
-          }
-        }
-      ]
-    );
+    console.log('Logout pressed');
+    // Handle logout logic
   };
 
-  const handleEditProfile = () => {
-    router.push('/edit-profile');
-  };
+  if (!isLoggedIn) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Profile</Text>
+        </View>
+        
+        <View style={styles.loginPromptContainer}>
+          <User size={80} color="#D1D5DB" />
+          <Text style={styles.loginPromptTitle}>Welcome to Bukalapak</Text>
+          <Text style={styles.loginPromptSubtitle}>
+            Sign in to access your account and enjoy personalized shopping experience
+          </Text>
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>Sign In</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.registerButton}>
+            <Text style={styles.registerButtonText}>Create Account</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -166,7 +86,7 @@ export default function ProfileScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
-          <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
+          <TouchableOpacity style={styles.editButton}>
             <Edit size={20} color="#374151" />
           </TouchableOpacity>
         </View>
@@ -175,13 +95,13 @@ export default function ProfileScreen() {
         <View style={styles.profileCard}>
           <View style={styles.profileInfo}>
             <Image 
-              source={{ uri: user?.avatar || 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150' }}
+              source={{ uri: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150' }}
               style={styles.avatar}
             />
             <View style={styles.profileDetails}>
-              <Text style={styles.userName}>{user?.name || 'User Name'}</Text>
-              <Text style={styles.userEmail}>{user?.email || 'user@email.com'}</Text>
-              <Text style={styles.userPhone}>{user?.phone || '+62 812 3456 7890'}</Text>
+              <Text style={styles.userName}>John Doe</Text>
+              <Text style={styles.userEmail}>john.doe@email.com</Text>
+              <Text style={styles.userPhone}>+62 812 3456 7890</Text>
             </View>
           </View>
           
@@ -216,7 +136,6 @@ export default function ProfileScreen() {
                     itemIndex === section.items.length - 1 && styles.menuItemLast
                   ]}
                   onPress={() => handleMenuPress(item.id)}
-                  activeOpacity={0.7}
                 >
                   <View style={styles.menuItemLeft}>
                     <View style={styles.menuIcon}>
@@ -225,14 +144,9 @@ export default function ProfileScreen() {
                     <Text style={styles.menuItemText}>{item.title}</Text>
                   </View>
                   <View style={styles.menuItemRight}>
-                    {item.id === 'orders' && (
+                    {item.count && (
                       <View style={styles.countBadge}>
-                        <Text style={styles.countText}>3</Text>
-                      </View>
-                    )}
-                    {item.id === 'wishlist' && favorites.length > 0 && (
-                      <View style={styles.countBadge}>
-                        <Text style={styles.countText}>{favorites.length}</Text>
+                        <Text style={styles.countText}>{item.count}</Text>
                       </View>
                     )}
                     <ChevronRight size={16} color="#9CA3AF" />
@@ -246,11 +160,7 @@ export default function ProfileScreen() {
         {/* Logout */}
         <View style={styles.menuSection}>
           <View style={styles.menuContainer}>
-            <TouchableOpacity 
-              style={styles.logoutItem} 
-              onPress={handleLogout}
-              activeOpacity={0.7}
-            >
+            <TouchableOpacity style={styles.logoutItem} onPress={handleLogout}>
               <View style={styles.menuItemLeft}>
                 <View style={styles.logoutIcon}>
                   <LogOut size={20} color="#EF4444" />
@@ -349,7 +259,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#10B981',
+    color: '#14B8A6',
     marginBottom: 4,
   },
   statLabel: {
@@ -415,7 +325,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   countBadge: {
-    backgroundColor: '#10B981',
+    backgroundColor: '#14B8A6',
     borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -442,5 +352,54 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 100,
+  },
+  loginPromptContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  loginPromptTitle: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  loginPromptSubtitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  loginButton: {
+    backgroundColor: '#14B8A6',
+    paddingHorizontal: 48,
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    width: '100%',
+    alignItems: 'center',
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+  },
+  registerButton: {
+    borderWidth: 2,
+    borderColor: '#14B8A6',
+    paddingHorizontal: 48,
+    paddingVertical: 16,
+    borderRadius: 12,
+    width: '100%',
+    alignItems: 'center',
+  },
+  registerButtonText: {
+    color: '#14B8A6',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
   },
 });

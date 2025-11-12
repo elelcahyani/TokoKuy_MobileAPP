@@ -25,9 +25,6 @@ import {
   Truck,
   MessageCircle
 } from 'lucide-react-native';
-import { useFavorites } from '@/contexts/FavoritesContext';
-import { useCart } from '@/contexts/CartContext';
-import { products } from '@/data/products';
 
 const { width } = Dimensions.get('window');
 
@@ -67,31 +64,58 @@ const reviews = [
 export default function ProductDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToCart } = useCart();
-  
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [isFavorited, setIsFavorited] = useState(false);
 
-  // Find product by id
-  const product = products.find(p => p.id === id) || products[0];
+  // Mock product data - in real app, fetch based on id
+  const product = {
+    id: id,
+    name: 'Premium Wireless Bluetooth Headphones',
+    price: 299000,
+    originalPrice: 399000,
+    discount: 25,
+    rating: 4.8,
+    reviewCount: 1250,
+    sold: '2.1k',
+    images: productImages,
+    description: 'Experience premium sound quality with these wireless Bluetooth headphones. Featuring advanced noise cancellation, 30-hour battery life, and comfortable over-ear design. Perfect for music lovers, professionals, and anyone who values high-quality audio.',
+    features: [
+      'Active Noise Cancellation',
+      '30-hour battery life',
+      'Premium leather ear cushions',
+      'Wireless charging case',
+      'Built-in microphone',
+      'Bluetooth 5.0 connectivity'
+    ],
+    seller: {
+      name: 'Tech Store Jakarta',
+      rating: 4.9,
+      location: 'Jakarta Selatan',
+      responseTime: '< 1 hour',
+    },
+    shipping: {
+      free: true,
+      estimatedDays: '2-3',
+      methods: ['Regular', 'Express', 'Same Day'],
+    },
+    stock: 25,
+  };
 
   const formatPrice = (price: number) => {
     return `Rp ${price.toLocaleString('id-ID')}`;
   };
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
     Alert.alert('Added to Cart', `${quantity} item(s) added to your cart.`);
   };
 
   const handleBuyNow = () => {
-    addToCart(product, quantity);
     Alert.alert('Buy Now', 'Proceeding to checkout...');
   };
 
   const updateQuantity = (change: number) => {
-    const newQuantity = Math.max(1, quantity + change);
+    const newQuantity = Math.max(1, Math.min(product.stock, quantity + change));
     setQuantity(newQuantity);
   };
 
@@ -138,12 +162,12 @@ export default function ProductDetailScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.headerButton}
-            onPress={() => toggleFavorite(product.id)}
+            onPress={() => setIsFavorited(!isFavorited)}
           >
             <Heart 
               size={24} 
-              color={isFavorite(product.id) ? "#EF4444" : "#111827"}
-              fill={isFavorite(product.id) ? "#EF4444" : "none"}
+              color={isFavorited ? "#EF4444" : "#111827"}
+              fill={isFavorited ? "#EF4444" : "none"}
             />
           </TouchableOpacity>
         </View>
@@ -162,17 +186,17 @@ export default function ProductDetailScreen() {
             }}
             scrollEventThrottle={16}
           >
-            {productImages.map((image, index) => (
+            {product.images.map((image, index) => (
               <Image key={index} source={{ uri: image }} style={styles.productImage} />
             ))}
           </ScrollView>
           <View style={styles.imageIndicator}>
-            {productImages.map((_, index) => (
+            {product.images.map((_, index) => (
               <View
                 key={index}
                 style={[
                   styles.indicator,
-                  { backgroundColor: index === currentImageIndex ? '#F97316' : '#D1D5DB' }
+                  { backgroundColor: index === currentImageIndex ? '#14B8A6' : '#D1D5DB' }
                 ]}
               />
             ))}
@@ -190,9 +214,7 @@ export default function ProductDetailScreen() {
           
           <View style={styles.priceContainer}>
             <Text style={styles.price}>{formatPrice(product.price)}</Text>
-            {product.originalPrice && (
-              <Text style={styles.originalPrice}>{formatPrice(product.originalPrice)}</Text>
-            )}
+            <Text style={styles.originalPrice}>{formatPrice(product.originalPrice)}</Text>
           </View>
 
           <View style={styles.ratingContainer}>
@@ -200,7 +222,7 @@ export default function ProductDetailScreen() {
               {renderStars(product.rating)}
             </View>
             <Text style={styles.ratingText}>{product.rating}</Text>
-            <Text style={styles.reviewCount}>(1250 reviews)</Text>
+            <Text style={styles.reviewCount}>({product.reviewCount} reviews)</Text>
             <Text style={styles.soldCount}>• {product.sold} sold</Text>
           </View>
 
@@ -209,27 +231,27 @@ export default function ProductDetailScreen() {
             <View style={styles.sellerInfo}>
               <Store size={20} color="#374151" />
               <View style={styles.sellerDetails}>
-                <Text style={styles.sellerName}>{product.seller}</Text>
+                <Text style={styles.sellerName}>{product.seller.name}</Text>
                 <View style={styles.sellerMeta}>
                   <View style={styles.sellerRating}>
                     <Star size={12} color="#F59E0B" fill="#F59E0B" />
-                    <Text style={styles.sellerRatingText}>4.9</Text>
+                    <Text style={styles.sellerRatingText}>{product.seller.rating}</Text>
                   </View>
                   <Text style={styles.sellerLocation}>
-                    <MapPin size={12} color="#9CA3AF" /> {product.location}
+                    <MapPin size={12} color="#9CA3AF" /> {product.seller.location}
                   </Text>
                 </View>
               </View>
             </View>
             <TouchableOpacity style={styles.chatButton}>
-              <MessageCircle size={20} color="#F97316" />
+              <MessageCircle size={20} color="#14B8A6" />
             </TouchableOpacity>
           </View>
 
           {/* Features */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Features</Text>
-            {product.features?.map((feature, index) => (
+            {product.features.map((feature, index) => (
               <View key={index} style={styles.featureItem}>
                 <Text style={styles.featureBullet}>•</Text>
                 <Text style={styles.featureText}>{feature}</Text>
@@ -248,12 +270,16 @@ export default function ProductDetailScreen() {
             <Text style={styles.sectionTitle}>Shipping</Text>
             <View style={styles.shippingInfo}>
               <View style={styles.shippingItem}>
-                <Truck size={20} color="#F97316" />
-                <Text style={styles.shippingText}>Free Shipping</Text>
+                <Truck size={20} color="#14B8A6" />
+                <Text style={styles.shippingText}>
+                  {product.shipping.free ? 'Free Shipping' : 'Paid Shipping'}
+                </Text>
               </View>
               <View style={styles.shippingItem}>
-                <Shield size={20} color="#F97316" />
-                <Text style={styles.shippingText}>Estimated 2-3 days</Text>
+                <Shield size={20} color="#14B8A6" />
+                <Text style={styles.shippingText}>
+                  Estimated {product.shipping.estimatedDays} days
+                </Text>
               </View>
             </View>
           </View>
@@ -261,7 +287,7 @@ export default function ProductDetailScreen() {
           {/* Reviews */}
           <View style={styles.section}>
             <View style={styles.reviewsHeader}>
-              <Text style={styles.sectionTitle}>Reviews (1250)</Text>
+              <Text style={styles.sectionTitle}>Reviews ({product.reviewCount})</Text>
               <TouchableOpacity>
                 <Text style={styles.seeAllText}>See All</Text>
               </TouchableOpacity>
@@ -308,7 +334,7 @@ export default function ProductDetailScreen() {
             style={styles.addToCartButton}
             onPress={handleAddToCart}
           >
-            <ShoppingCart size={20} color="#F97316" />
+            <ShoppingCart size={20} color="#14B8A6" />
             <Text style={styles.addToCartText}>Add to Cart</Text>
           </TouchableOpacity>
           
@@ -396,7 +422,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 24,
     fontFamily: 'Inter-Bold',
-    color: '#F97316',
+    color: '#14B8A6',
     marginRight: 12,
   },
   originalPrice: {
@@ -478,7 +504,7 @@ const styles = StyleSheet.create({
   chatButton: {
     padding: 8,
     borderWidth: 1,
-    borderColor: '#F97316',
+    borderColor: '#14B8A6',
     borderRadius: 8,
   },
   section: {
@@ -497,7 +523,7 @@ const styles = StyleSheet.create({
   },
   featureBullet: {
     fontSize: 16,
-    color: '#F97316',
+    color: '#14B8A6',
     marginRight: 8,
     fontFamily: 'Inter-Bold',
   },
@@ -535,7 +561,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    color: '#F97316',
+    color: '#14B8A6',
   },
   reviewItem: {
     borderBottomWidth: 1,
@@ -620,19 +646,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#F97316',
+    borderColor: '#14B8A6',
     paddingVertical: 12,
     borderRadius: 8,
   },
   addToCartText: {
-    color: '#F97316',
+    color: '#14B8A6',
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
     marginLeft: 8,
   },
   buyNowButton: {
     flex: 1,
-    backgroundColor: '#F97316',
+    backgroundColor: '#14B8A6',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,

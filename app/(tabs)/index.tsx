@@ -11,12 +11,8 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Search, Bell, MapPin, Star, Heart, ShoppingBag } from 'lucide-react-native';
+import { Search, Bell, MapPin, Star, Heart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { useFavorites } from '@/contexts/FavoritesContext';
-import { useCart } from '@/contexts/CartContext';
-import { categories, products } from '@/data/products';
 
 const { width } = Dimensions.get('window');
 
@@ -26,12 +22,63 @@ const banners = [
   'https://images.pexels.com/photos/5632398/pexels-photo-5632398.jpeg?auto=compress&cs=tinysrgb&w=800',
 ];
 
+const categories = [
+  { id: '1', name: 'Electronics', icon: '📱' },
+  { id: '2', name: 'Fashion', icon: '👕' },
+  { id: '3', name: 'Home', icon: '🏠' },
+  { id: '4', name: 'Beauty', icon: '💄' },
+  { id: '5', name: 'Sports', icon: '⚽' },
+  { id: '6', name: 'Books', icon: '📚' },
+  { id: '7', name: 'Toys', icon: '🧸' },
+  { id: '8', name: 'More', icon: '⋯' },
+];
+
+const products = [
+  {
+    id: '1',
+    name: 'Wireless Bluetooth Headphones',
+    price: 299000,
+    originalPrice: 399000,
+    image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.5,
+    sold: '2.1k',
+    location: 'Jakarta',
+  },
+  {
+    id: '2',
+    name: 'Smartphone Case Premium',
+    price: 89000,
+    originalPrice: 129000,
+    image: 'https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.8,
+    sold: '3.5k',
+    location: 'Bandung',
+  },
+  {
+    id: '3',
+    name: 'Laptop Stand Adjustable',
+    price: 189000,
+    originalPrice: 249000,
+    image: 'https://images.pexels.com/photos/577210/pexels-photo-577210.jpeg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.7,
+    sold: '1.8k',
+    location: 'Surabaya',
+  },
+  {
+    id: '4',
+    name: 'Wireless Mouse Gaming',
+    price: 159000,
+    originalPrice: 199000,
+    image: 'https://images.pexels.com/photos/2115257/pexels-photo-2115257.jpeg?auto=compress&cs=tinysrgb&w=400',
+    rating: 4.6,
+    sold: '924',
+    location: 'Jakarta',
+  },
+];
+
 export default function HomeScreen() {
   const [currentBanner, setCurrentBanner] = useState(0);
   const router = useRouter();
-  const { user } = useAuth();
-  const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToCart } = useCart();
 
   const formatPrice = (price: number) => {
     return `Rp ${price.toLocaleString('id-ID')}`;
@@ -45,17 +92,6 @@ export default function HomeScreen() {
     router.push('/search');
   };
 
-  const handleCategoryPress = (categoryId: string) => {
-    router.push({
-      pathname: '/(tabs)/categories',
-      params: { category: categoryId }
-    });
-  };
-
-  const handleAddToCart = (product: any) => {
-    addToCart(product);
-  };
-
   const renderProduct = ({ item }: { item: any }) => (
     <TouchableOpacity 
       style={styles.productCard}
@@ -63,21 +99,9 @@ export default function HomeScreen() {
     >
       <View style={styles.productImageContainer}>
         <Image source={{ uri: item.image }} style={styles.productImage} />
-        <TouchableOpacity 
-          style={styles.favoriteButton}
-          onPress={() => toggleFavorite(item.id)}
-        >
-          <Heart 
-            size={16} 
-            color={isFavorite(item.id) ? "#EF4444" : "#9CA3AF"}
-            fill={isFavorite(item.id) ? "#EF4444" : "none"}
-          />
+        <TouchableOpacity style={styles.favoriteButton}>
+          <Heart size={16} color="#9CA3AF" />
         </TouchableOpacity>
-        {item.discount && (
-          <View style={styles.discountBadge}>
-            <Text style={styles.discountText}>{item.discount}%</Text>
-          </View>
-        )}
       </View>
       <View style={styles.productInfo}>
         <Text style={styles.productName} numberOfLines={2}>
@@ -85,9 +109,7 @@ export default function HomeScreen() {
         </Text>
         <View style={styles.priceContainer}>
           <Text style={styles.price}>{formatPrice(item.price)}</Text>
-          {item.originalPrice && (
-            <Text style={styles.originalPrice}>{formatPrice(item.originalPrice)}</Text>
-          )}
+          <Text style={styles.originalPrice}>{formatPrice(item.originalPrice)}</Text>
         </View>
         <View style={styles.productMeta}>
           <View style={styles.ratingContainer}>
@@ -100,13 +122,6 @@ export default function HomeScreen() {
           <MapPin size={12} color="#9CA3AF" />
           <Text style={styles.location}>{item.location}</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.addToCartButton}
-          onPress={() => handleAddToCart(item)}
-        >
-          <ShoppingBag size={14} color="#10B981" />
-          <Text style={styles.addToCartText}>Add to Cart</Text>
-        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -121,15 +136,12 @@ export default function HomeScreen() {
               <MapPin size={16} color="#9CA3AF" />
               <Text style={styles.locationText}>Jakarta, Indonesia</Text>
             </View>
-            <View style={styles.headerRight}>
-              <Text style={styles.welcomeText}>Hi, {user?.name?.split(' ')[0] || 'User'}!</Text>
-              <TouchableOpacity style={styles.notificationButton}>
-                <Bell size={24} color="#374151" />
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.badgeText}>3</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.notificationButton}>
+              <Bell size={24} color="#374151" />
+              <View style={styles.notificationBadge}>
+                <Text style={styles.badgeText}>3</Text>
+              </View>
+            </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.searchContainer} onPress={handleSearchPress}>
             <Search size={20} color="#9CA3AF" />
@@ -159,7 +171,7 @@ export default function HomeScreen() {
                 key={index}
                 style={[
                   styles.indicator,
-                  { backgroundColor: index === currentBanner ? '#10B981' : '#D1D5DB' }
+                  { backgroundColor: index === currentBanner ? '#14B8A6' : '#D1D5DB' }
                 ]}
               />
             ))}
@@ -170,12 +182,8 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Categories</Text>
           <View style={styles.categoriesGrid}>
-            {categories.slice(1, 9).map((category) => (
-              <TouchableOpacity 
-                key={category.id} 
-                style={styles.categoryItem}
-                onPress={() => handleCategoryPress(category.id)}
-              >
+            {categories.map((category) => (
+              <TouchableOpacity key={category.id} style={styles.categoryItem}>
                 <Text style={styles.categoryIcon}>{category.icon}</Text>
                 <Text style={styles.categoryName}>{category.name}</Text>
               </TouchableOpacity>
@@ -187,12 +195,12 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Flash Sale</Text>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/categories')}>
+            <TouchableOpacity>
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
           <FlatList
-            data={products.slice(0, 4)}
+            data={products}
             renderItem={renderProduct}
             keyExtractor={(item) => item.id}
             numColumns={2}
@@ -205,12 +213,12 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recommended for You</Text>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/categories')}>
+            <TouchableOpacity>
               <Text style={styles.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
           <FlatList
-            data={products.slice(4, 8)}
+            data={products}
             renderItem={renderProduct}
             keyExtractor={(item) => `rec-${item.id}`}
             numColumns={2}
@@ -250,16 +258,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     fontFamily: 'Inter-Regular',
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  welcomeText: {
-    fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    color: '#111827',
-    marginRight: 12,
   },
   notificationButton: {
     position: 'relative',
@@ -332,7 +330,7 @@ const styles = StyleSheet.create({
   },
   seeAll: {
     fontSize: 14,
-    color: '#10B981',
+    color: '#14B8A6',
     fontFamily: 'Inter-SemiBold',
   },
   categoriesGrid: {
@@ -402,20 +400,6 @@ const styles = StyleSheet.create({
     shadowRadius: 1.41,
     elevation: 2,
   },
-  discountBadge: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    backgroundColor: '#EF4444',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  discountText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontFamily: 'Inter-Bold',
-  },
   productInfo: {
     padding: 12,
   },
@@ -434,7 +418,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontFamily: 'Inter-Bold',
-    color: '#10B981',
+    color: '#14B8A6',
     marginRight: 8,
   },
   originalPrice: {
@@ -467,28 +451,11 @@ const styles = StyleSheet.create({
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
   },
   location: {
     marginLeft: 4,
     fontSize: 12,
     color: '#9CA3AF',
     fontFamily: 'Inter-Regular',
-  },
-  addToCartButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ECFDF5',
-    borderWidth: 1,
-    borderColor: '#10B981',
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  addToCartText: {
-    color: '#10B981',
-    fontSize: 12,
-    fontFamily: 'Inter-SemiBold',
-    marginLeft: 4,
   },
 });

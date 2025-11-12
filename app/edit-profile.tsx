@@ -67,7 +67,7 @@ export default function EditProfileScreen() {
           style={styles.saveButton}
           onPress={handleSave}
         >
-          <Save size={20} color="#F97316" />
+          <Save size={20} color="#10B981" />
         </TouchableOpacity>
       </View>
 
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#F97316',
+    backgroundColor: '#10B981',
     borderRadius: 20,
     width: 40,
     height: 40,
@@ -259,12 +259,12 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   submitButton: {
-    backgroundColor: '#F97316',
+    backgroundColor: '#10B981',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: 32,
-    shadowColor: '#F97316',
+    shadowColor: '#10B981',
     shadowOffset: {
       width: 0,
       height: 4,

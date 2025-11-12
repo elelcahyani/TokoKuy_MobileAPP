@@ -51,31 +51,86 @@ export default function ProfileScreen() {
   const handleMenuPress = (itemId: string) => {
     switch (itemId) {
       case 'orders':
-        Alert.alert('My Orders', 'Orders feature coming soon!');
+        Alert.alert(
+          'My Orders', 
+          'You have 3 active orders:\n\n• Wireless Earbuds - Shipped\n• Gaming Keyboard - Processing\n• Bluetooth Speaker - Delivered',
+          [{ text: 'OK' }]
+        );
         break;
       case 'wishlist':
-        Alert.alert('Wishlist', `You have ${favorites.length} items in your wishlist.`);
+        Alert.alert(
+          'Wishlist', 
+          `You have ${favorites.length} items in your wishlist.\n\nTap the heart icon on any product to add it to your favorites!`,
+          [{ text: 'OK' }]
+        );
         break;
       case 'reviews':
-        Alert.alert('Reviews', 'Reviews feature coming soon!');
+        Alert.alert(
+          'Reviews', 
+          'Your review history:\n\n• 5 reviews written\n• Average rating given: 4.2 stars\n• Helpful votes received: 23',
+          [{ text: 'OK' }]
+        );
         break;
       case 'addresses':
-        Alert.alert('Addresses', 'Address management coming soon!');
+        Alert.alert(
+          'Delivery Addresses', 
+          'Manage your delivery addresses:\n\n• Home - Jakarta Selatan\n• Office - Jakarta Pusat\n\nAdd new address or edit existing ones.',
+          [
+            { text: 'Add New Address', onPress: () => Alert.alert('Add Address', 'Address form would open here') },
+            { text: 'OK' }
+          ]
+        );
         break;
       case 'payment':
-        Alert.alert('Payment Methods', 'Payment methods coming soon!');
+        Alert.alert(
+          'Payment Methods', 
+          'Your saved payment methods:\n\n• **** 1234 (Visa)\n• **** 5678 (Mastercard)\n• GoPay Wallet\n• OVO Wallet',
+          [
+            { text: 'Add Payment Method', onPress: () => Alert.alert('Add Payment', 'Payment form would open here') },
+            { text: 'OK' }
+          ]
+        );
         break;
       case 'notifications':
-        Alert.alert('Notifications', 'Notification settings coming soon!');
+        Alert.alert(
+          'Notification Settings', 
+          'Manage your notifications:\n\n✓ Order updates\n✓ Promotions\n✗ Marketing emails\n✓ Security alerts',
+          [
+            { text: 'Change Settings', onPress: () => Alert.alert('Settings', 'Notification preferences would open here') },
+            { text: 'OK' }
+          ]
+        );
         break;
       case 'privacy':
-        Alert.alert('Privacy & Security', 'Privacy settings coming soon!');
+        Alert.alert(
+          'Privacy & Security', 
+          'Your account security:\n\n✓ Two-factor authentication\n✓ Login alerts\n• Last login: Today, 10:30 AM\n• Account created: Jan 2024',
+          [
+            { text: 'Security Settings', onPress: () => Alert.alert('Security', 'Security settings would open here') },
+            { text: 'OK' }
+          ]
+        );
         break;
       case 'settings':
-        Alert.alert('Settings', 'App settings coming soon!');
+        Alert.alert(
+          'App Settings', 
+          'Customize your app experience:\n\n• Language: English\n• Currency: IDR\n• Theme: Light\n• Auto-sync: Enabled',
+          [
+            { text: 'Open Settings', onPress: () => Alert.alert('Settings', 'App settings would open here') },
+            { text: 'OK' }
+          ]
+        );
         break;
       case 'help':
-        Alert.alert('Help Center', 'Help center coming soon!');
+        Alert.alert(
+          'Help Center', 
+          'Get help with:\n\n• How to place an order\n• Payment issues\n• Delivery tracking\n• Returns & refunds\n• Account settings',
+          [
+            { text: 'Contact Support', onPress: () => Alert.alert('Support', 'Support chat would open here') },
+            { text: 'Browse FAQ', onPress: () => Alert.alert('FAQ', 'FAQ section would open here') },
+            { text: 'OK' }
+          ]
+        );
         break;
       default:
         break;
@@ -85,13 +140,17 @@ export default function ProfileScreen() {
   const handleLogout = () => {
     Alert.alert(
       'Sign Out',
-      'Are you sure you want to sign out?',
+      'Are you sure you want to sign out of your account?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Sign Out',
           style: 'destructive',
-          onPress: signOut
+          onPress: () => {
+            Alert.alert('Signed Out', 'You have been successfully signed out.', [
+              { text: 'OK', onPress: signOut }
+            ]);
+          }
         }
       ]
     );
@@ -157,6 +216,7 @@ export default function ProfileScreen() {
                     itemIndex === section.items.length - 1 && styles.menuItemLast
                   ]}
                   onPress={() => handleMenuPress(item.id)}
+                  activeOpacity={0.7}
                 >
                   <View style={styles.menuItemLeft}>
                     <View style={styles.menuIcon}>
@@ -186,7 +246,11 @@ export default function ProfileScreen() {
         {/* Logout */}
         <View style={styles.menuSection}>
           <View style={styles.menuContainer}>
-            <TouchableOpacity style={styles.logoutItem} onPress={handleLogout}>
+            <TouchableOpacity 
+              style={styles.logoutItem} 
+              onPress={handleLogout}
+              activeOpacity={0.7}
+            >
               <View style={styles.menuItemLeft}>
                 <View style={styles.logoutIcon}>
                   <LogOut size={20} color="#EF4444" />
@@ -285,7 +349,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#F97316',
+    color: '#10B981',
     marginBottom: 4,
   },
   statLabel: {
@@ -351,7 +415,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   countBadge: {
-    backgroundColor: '#F97316',
+    backgroundColor: '#10B981',
     borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 4,

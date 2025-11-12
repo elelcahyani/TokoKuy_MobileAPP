@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   selectAllText: {
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    color: '#F97316',
+    color: '#10B981',
   },
   content: {
     flex: 1,
@@ -278,8 +278,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#F97316',
-    borderColor: '#F97316',
+    backgroundColor: '#10B981',
+    borderColor: '#10B981',
   },
   checkmark: {
     color: '#FFFFFF',
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   itemPrice: {
     fontSize: 16,
     fontFamily: 'Inter-Bold',
-    color: '#F97316',
+    color: '#10B981',
     marginBottom: 2,
   },
   originalPrice: {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   shopButton: {
-    backgroundColor: '#F97316',
+    backgroundColor: '#10B981',
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 12,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#F97316',
+    color: '#10B981',
   },
   savingsRow: {
     alignItems: 'flex-end',
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     color: '#059669',
   },
   checkoutButton: {
-    backgroundColor: '#F97316',
+    backgroundColor: '#10B981',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
